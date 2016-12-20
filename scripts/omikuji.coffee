@@ -7,7 +7,7 @@
 module.exports = (robot) ->
 
   robot.hear /おみくじ/, (res) ->
-    res.send msg.random
+    res.send msg.random [
       "大吉"
       "吉"
       "中吉"
@@ -15,3 +15,4 @@ module.exports = (robot) ->
       "末吉"
       "凶"
       "大凶"
+      ]
