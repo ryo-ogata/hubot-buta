@@ -7,4 +7,5 @@
 module.exports = (robot) ->
 
   robot.hear /(ぶた|ブタ|豚|でぶ|デブ|buta)/, (res) ->
-    res.send "今デブって言ったかこの野郎"
+    word = res.match[1]
+    res.send "今#{word}って言ったかこの野郎"
