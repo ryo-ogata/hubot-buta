@@ -13,7 +13,7 @@ module.exports = (robot) ->
   robot.hear /(もこ|モコ)/, (res) ->
     res.send "もこもこ"
 
-  robot.hear /([^　、。！？ ]+)(する|した|してた|している|してる|できる)/, (res) ->
+  robot.hear /([^　、。！？ ]+)(する|した|してた|している|してる|できる|きた)/, (res) ->
     word0 = res.match[1]
     word1 = res.match[2]
     res.send "#{word0}#{word1}フレンズなんだね！"
