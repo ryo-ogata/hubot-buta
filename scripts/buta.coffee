@@ -13,10 +13,10 @@ module.exports = (robot) ->
   robot.hear /(もこ|モコ)/, (res) ->
     res.send "もこもこ"
 
-  robot.hear /([^　、。！？ ]+)(する|した|してた|している|してる|できる|きた)/, (res) ->
-    word0 = res.match[1]
-    word1 = res.match[2]
-    res.send "#{word0}#{word1}フレンズなんだね！"
+  # robot.hear /([^　、。！？ ]+)(する|した|してた|している|してる|できる|きた)/, (res) ->
+  #   word0 = res.match[1]
+  #   word1 = res.match[2]
+  #   res.send "#{word0}#{word1}フレンズなんだね！"
 
   robot.hear /(修造|しゅうぞう|shuzo|shuuzo)/, (res) ->
     msgs = [
@@ -33,3 +33,15 @@ module.exports = (robot) ->
         '反省はしろ！後悔はするな！'
     ]
     res.send res.random msgs
+
+  robot.hear /.*/, (msg) ->
+    console.dir msg.message.tokenized
+    hasKeiyoushi = false
+    out = ""
+    msg.message.tokenized.reverse().map (token) ->
+      if token.pos in ['助動詞','動詞']
+        hasKeiyoushi = true
+      if hasKeiyoushi
+        out = "#{token.surface_form}#{out}"
+    if hasKeiyoushi
+      msg.send "#{out}フレンズなんだね！"
