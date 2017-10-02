@@ -48,7 +48,7 @@ module.exports = (robot) ->
     }
     kuromoji.builder(options)
       .build (err, tokenizer) ->
-        console.log msg.message.tokenized
+        # console.log msg.message.tokenized
         tokens = msg.message.tokenized.reverse()
         outs = [
           subtoken(tokens, ['形容詞'])
