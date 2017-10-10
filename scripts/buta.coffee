@@ -20,11 +20,6 @@ module.exports = (robot) ->
   robot.hear /(もこ|モコ)/, (res) ->
     res.send "もこもこ"
 
-  # robot.hear /([^　、。！？ ]+)(する|した|してた|している|してる|できる|きた)/, (res) ->
-  #   word0 = res.match[1]
-  #   word1 = res.match[2]
-  #   res.send "#{word0}#{word1}フレンズなんだね！"
-
   robot.hear /(修造|しゅうぞう|shuzo|shuuzo)/, (res) ->
     msgs = [
         '何を言われてもイライラしなーい'
@@ -49,7 +44,7 @@ module.exports = (robot) ->
     kuromoji.builder(options)
       .build (err, tokenizer) ->
         # console.log msg.message.tokenized
-        tokens = msg.message.tokenized.reverse()
+        tokens = msg.message.tokenized
         outs = [
           subtoken(tokens, ['形容詞'])
           subtoken(tokens, ['助動詞','動詞'])
@@ -64,9 +59,7 @@ module.exports = (robot) ->
 
   subtoken = (tokens, hitPosTypes) ->
     # counts = {}
-    hasConcat = false
     isFinished = false
-    hasMeishi = false
     outs = tokens.map (token) ->
       # if token.pos of counts
       #   counts[token.pos] = counts[token.pos] + 1
@@ -74,13 +67,9 @@ module.exports = (robot) ->
       #   counts[token.pos] = 1
       if isFinished is true
         null
-      else if hasConcat is true and hasMeishi is true
-        isFinished = true
-        null
       else if token.pos in hitPosTypes
-        hasConcat = true
+        isFinished = true
         token.surface_form
-      else if hasConcat
-        hasMeishi = token.pos in ['名詞', '記号']
+      else
         token.surface_form
-    outs?.compact().reverse().join('')
+    outs?.compact().join('')
