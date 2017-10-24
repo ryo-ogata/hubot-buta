@@ -20,7 +20,12 @@ module.exports = (robot) ->
 
   request = require 'request'
   redis = require('redis')
-  client = redis.createClient()
+
+  url = require('url')
+  redisURL = url.parse(process.env.REDISCLOUD_URL)
+  client = redis.createClient(redisURL.port, redisURL.hostname, {
+    no_ready_check: true
+  })
 
   Array::compact = ->
     (elem for elem in this when elem?)
