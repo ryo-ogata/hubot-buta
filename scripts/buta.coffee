@@ -15,12 +15,12 @@ module.exports = (robot) ->
 
   # docomo
   EXPIRE_SEC=180
-  DDS_API_KEY = '5a7961594e556774446f493247523043666c707467644452476b2f6e375957793239394c55493777726f39'
-  DDS_DIALOGUE_URL = "https://api.apigw.smt.docomo.ne.jp/dialogue/v1/dialogue?APIKEY=#{DDS_API_KEY}"
+  DDS_API_KEY = process.env.DDS_API_KEY
+  DDS_DIALOGUE_URL = process.env.DDS_DIALOGUE_URL
 
   request = require 'request'
   redis = require('redis')
-  client = redis.createClient(process.env.REDISCLOUD_URL, {no_ready_check: true})
+  client = redis.createClient()
 
   Array::compact = ->
     (elem for elem in this when elem?)
