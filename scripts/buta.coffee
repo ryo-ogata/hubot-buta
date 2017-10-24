@@ -17,15 +17,17 @@ module.exports = (robot) ->
   EXPIRE_SEC=180
   DDS_API_KEY = process.env.DDS_API_KEY
   DDS_DIALOGUE_URL = process.env.DDS_DIALOGUE_URL
+  REDIS_URL = process.env.REDISTOGO_URL
 
   request = require 'request'
   redis = require('redis')
+  url = require("url")
 
-  url = require('url')
-  redisURL = url.parse(process.env.REDISCLOUD_URL)
-  client = redis.createClient(redisURL.port, redisURL.hostname, {
-    no_ready_check: true
-  })
+  rtg   = url.parse(REDIS_URL)
+  client = redis.createClient(rtg.port, rtg.hostname)
+  if rtg.auth?.split(":")?.length > 1
+    client.auth(rtg.auth.split(":")[1]);
+
 
   Array::compact = ->
     (elem for elem in this when elem?)
