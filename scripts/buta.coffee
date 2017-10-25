@@ -36,11 +36,6 @@ module.exports = (robot) ->
   Array::last ?= (n) ->
     if n? then @[(Math.max @length - n, 0)...] else @[@length - 1]
 
-  robot.hear /(ばいばい|バイバイ|おやすみ|オヤスミ)/, (msg) ->
-    # dialog session finish
-    key = make_dialog_session_key msg
-    client.del(key)
-
   robot.hear /(ぶた|ブタ|豚|でぶ|デブ|buta)/, (msg) ->
     # dialog session start
     key = make_dialog_session_key msg
@@ -53,9 +48,9 @@ module.exports = (robot) ->
     msg.send "もこもこ"
 
   robot.hear /.*/, (msg) ->
+    # 会話中ならば雑談APIを呼ぶ
     key = make_dialog_session_key msg
     client.get key, (err, reply) ->
-      # console.log "hasDs=#{reply}"
       if reply
         send_dialog msg
 
@@ -84,31 +79,6 @@ module.exports = (robot) ->
         json = JSON.parse body
         msg.send json.utt
         client.set(contextKey, json.context, 'EX', EXPIRE_SEC)
-        
-    # data = {
-    #   utt: "こんにちは",
-    #   context: "",
-    #   # nickname: "光",
-    #   # nickname_y: "ヒカリ",
-    #   # sex: "女",
-    #   # bloodtype: "B",
-    #   # birthdateY: "1997",
-    #   # birthdateM: "5",
-    #   # birthdateD: "30",
-    #   # age: "16",
-    #   # constellations: "双子座",
-    #   # place: "東京",
-    #   mode: "dialog"
-    # }
-
-    # {
-    #   "utt": "ちわー",
-    #   "yomi": "ちわー",
-    #   "mode": "dialog",
-    #   "da": "0",
-    #   "context": "zdAU-C2RSLSabNMizCuA1Q"
-    # }
-
 
   robot.hear /(修造|しゅうぞう|shuzo|shuuzo)/, (msg) ->
     msgs = [
