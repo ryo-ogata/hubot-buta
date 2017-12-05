@@ -8,11 +8,6 @@ cron = require('cron').CronJob
 
 module.exports = (robot) ->
 
-  new cron '0 0 */1 * * *', () =>
-  # new cron '*/5 * * * * *', () =>
-    robot.send {room: "#general"}, "「ぶた」「豚」「でぶ」などと発言すると会話がはじまります。豚BOTが#{+(EXPIRE_SEC / 60)}分間、あなたの発言に反応します。"
-  , null, true, "Asia/Tokyo"
-
   # docomo
   EXPIRE_SEC=180
   DDS_API_KEY = process.env.DDS_API_KEY
