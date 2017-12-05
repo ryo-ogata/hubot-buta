@@ -1,6 +1,4 @@
 [
-  "hubot-help",
   "hubot-heroku-keepalive",
-  "hubot-middleware-kuromoji",
   "hubot-redis-brain"
 ]
