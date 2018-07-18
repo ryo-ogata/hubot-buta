@@ -39,6 +39,7 @@ module.exports = (robot) ->
       msg.send "今#{text_buta}って言ったかこの野郎"
     new Promise((resolve, reject) =>
       key = make_dialog_session_key msg
+      log_ "key=#{key}"
       client.get key, (err, reply) ->
         log_ "11 err=#{err}, reply=#{reply}"
         if err or !reply
@@ -113,7 +114,7 @@ module.exports = (robot) ->
       ''
 
   log_ = (obj) ->
-    # robot.logger.error obj
+    robot.logger.error obj
 
   robot.hear /(修造|しゅうぞう|shuzo|shuuzo)/, (msg) ->
     msgs = [
