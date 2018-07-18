@@ -71,9 +71,6 @@ module.exports = (robot) ->
     )
     .catch((err) => { })
 
-  dateAdd = (date, delta) ->
-    new Date date.getTime() + delta * 1000
-
   make_dialog_session_key = (msg) ->
     "d_s_#{msg.envelope.user.id}"
 
@@ -101,7 +98,8 @@ module.exports = (robot) ->
           reject(err)
         else
           json = JSON.parse body
-          msg.send json.systemText.expression
+          if json?.systemText?.expression?
+            msg.send json.systemText.expression
 
   random_t = () ->
     # 1-100
