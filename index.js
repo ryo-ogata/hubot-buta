@@ -1,6 +1,6 @@
 const fs = require('fs');
 const Discord = require('discord.js');
-const { prefix, token} = require('config.json');
+const { prefix, token } = require('config.json');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -27,10 +27,30 @@ client.on('message', message => {
 
   try {
     client.commands.get(commandName).execute(message, args);
-  } catch (error) {
+  }
+  catch (error) {
     console.error(error);
     message.reply('there was an error trying to execute that command!');
   }
 });
+
+async function synthesizeText(text, outputFile) {
+  const textToSpeech = require('@google-cloud/text-to-speech');
+  const fs = require('fs');
+  const util = require('util');
+
+  const client = new textToSpeech.TextToSpeechClient();
+
+  const request = {
+    input: {text: text},
+    voice: {languageCode: 'ja', ssmlGender: 'FEMALE'},
+    audioConfig: {audioEncoding: 'MP3'},
+  };
+  const [response] = await client.synthesizeSpeech(request);
+  const writeFile = util.promisify(fs.writeFile);
+  await writeFile(outputFile, response.audioContent, 'binary');
+  console.log(`Audio content written to file: ${outputFile}`);
+}
+
 
 client.login(token);

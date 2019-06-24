@@ -4,7 +4,10 @@
   "description": "discord bot (hubot / discord.js etc...)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node .",
+    "lint": "eslint .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tts": "node tts.js"
   },
   "repository": {
     "type": "git",
@@ -18,7 +21,9 @@
   },
   "homepage": "https://github.com/ryo-ogata/hubot-buta#readme",
   "dependencies": {
+    "@google-cloud/text-to-speech": "^1.1.1",
     "discord.js": "^11.5.1",
+    "ffmpeg-binaries": "^4.0.0",
     "node-opus": "^0.3.2",
     "opusscript": "0.0.6"
   },
