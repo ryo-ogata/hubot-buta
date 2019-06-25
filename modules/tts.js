@@ -21,7 +21,8 @@ async function main(text, outputFile) {
   const writeFile = util.promisify(fs.writeFile);
   await writeFile(outputFile, response.audioContent, 'binary');
   console.log('Audio content written to file: output.mp3');
+  return outputFile;
 }
 
-main('こんにちわ。Hello World!!', 'mp3/output.mp3')
+//main('こんにちわ。Hello World!!', 'mp3/output.mp3')
 

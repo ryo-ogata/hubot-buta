@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node .",
     "lint": "eslint .",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "tts": "node tts.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -22,10 +21,13 @@
   "homepage": "https://github.com/ryo-ogata/hubot-buta#readme",
   "dependencies": {
     "@google-cloud/text-to-speech": "^1.1.1",
+    "axios": "^0.19.0",
     "discord.js": "^11.5.1",
+    "dotenv": "^8.0.0",
     "ffmpeg-binaries": "^4.0.0",
     "node-opus": "^0.3.2",
-    "opusscript": "0.0.6"
+    "opusscript": "0.0.6",
+    "redis": "^2.8.0"
   },
   "devDependencies": {
     "eslint": "^6.0.0"

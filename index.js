@@ -1,11 +1,12 @@
+require('dotenv').config();
 const fs = require('fs');
 const Discord = require('discord.js');
-const { prefix, token } = require('config.json');
+const { prefix, token } = require('./config.json');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
-const commandFiles = fs.readditSync('./commands').filter(file => file.ends.With('.js'));
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`);
@@ -23,18 +24,34 @@ client.on('message', message => {
   const args = message.content.slice(prefix.length).split(/ +/);
   const commandName = args.shift().toLowerCase();
 
-  if (!client.commands.has(commandName)) return;
-
-  try {
-    client.commands.get(commandName).execute(message, args);
+  if (commandName === 'join') {
+    join(message).then(connection => {
+      playMp3(connection, '/root/bot/hubot-buta/mp3/output.mp3');
+    }).catch(e => console.error(e));
   }
-  catch (error) {
-    console.error(error);
-    message.reply('there was an error trying to execute that command!');
-  }
+  //if (!client.commands.has(commandName)) return;
+  //try {
+  //  client.commands.get(commandName).execute(message, args);
+  //}
+  //catch (error) {
+  //  console.error(error);
+  //  message.reply('there was an error trying to execute that command!');
+  //}
 });
 
-async function synthesizeText(text, outputFile) {
+async function join(message) {
+  if (message.member.voice.channel) {
+    const connection = await message.member.voice.channel.join();
+    return connection;
+  } else {
+    message.reply('You need to join a voice channel first!');
+  }
+  return null;
+}
+
+// https://cloud.google.com/text-to-speech/docs/reference/rest/v1/voices/list?hl=ja
+// https://cloud.google.com/text-to-speech/docs/reference/rest/v1/text/synthesize?hl=ja#audioconfig
+async function tts(text, outputFile) {
   const textToSpeech = require('@google-cloud/text-to-speech');
   const fs = require('fs');
   const util = require('util');
@@ -43,14 +60,30 @@ async function synthesizeText(text, outputFile) {
 
   const request = {
     input: {text: text},
-    voice: {languageCode: 'ja', ssmlGender: 'FEMALE'},
-    audioConfig: {audioEncoding: 'MP3'},
+    voice: {
+      languageCode: 'ja',
+      ssmlGender: 'SSML_VOICE_GENDER_UNSPECIFIED'
+    },
+    audioConfig: {
+      audioEncoding: 'MP3',
+      speakingRate: 1.5,
+      volumeGainDb: -1
+    },
   };
   const [response] = await client.synthesizeSpeech(request);
   const writeFile = util.promisify(fs.writeFile);
   await writeFile(outputFile, response.audioContent, 'binary');
   console.log(`Audio content written to file: ${outputFile}`);
+  return outputFile;
 }
 
+async function playMp3(connection, mp3File) {
+  const dispatcher = connection.play(mp3File);
+  dispatcher.setVolume(0.5);
+  dispatcher.on('finish', () => {
+    console.log('Finished playing!');
+  });
+  dispatcher.destroy();
+}
 
-client.login(token);
+client.login(token).catch(e => console.error(e));
