@@ -5,4 +5,10 @@ if (((ref = rtg.auth) != null ? (ref1 = ref.split(":")) != null ? ref1.length : 
   redis.auth(rtg.auth.split(":")[1]);
 }
 
-module.exports = redis;
+const { promisify } = require('util');
+const getAsync = promisify(redis.get).bind(redis);
+
+module.exports = {
+  redis: redis,
+  getAsync: getAsync
+};
