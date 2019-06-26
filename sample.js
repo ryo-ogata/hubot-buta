@@ -1,11 +1,13 @@
 require('dotenv').config();
 
-const dds = require('./modules/dds')
-const { redis, getAsync } = require('./modules/redis')
+const dds = require('./modules/dds');
+const { redis, getAsync } = require('./modules/redis');
+const tts = require('./modules/tts');
+const uuidv4 = require('uuid/v4');
 
 async function getText(userId, username, inputText) {
-  const key = make_dialog_session_key(userId);
-  const text = getAsync(key)
+  const key = `d_s_${userId}`;
+  return await getAsync(key)
     .then(appId => {
       if (appId) {
         console.log('cacheにあるappIdをつかいます');
@@ -25,8 +27,13 @@ async function getText(userId, username, inputText) {
     .catch(e => console.log(e));
 }
 
-function make_dialog_session_key(userId) {
-  return `d_s_${userId}`;
-}
+getText(1, 'A', '英語わかる')
+  .then(text => {
+    return {
+      text: text,
+      outputFile: tts(text, `./mp3/${uuidv4()}.mp3`).catch(e => console.log(e))
+    };
+  })
+  .then(a => console.log(a))
+  .catch(text => console.log(text));
 
-getText(1, 'A', 'ぶた').then(text => console.log(text));

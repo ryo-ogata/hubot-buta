@@ -10,5 +10,7 @@ const getAsync = promisify(redis.get).bind(redis);
 
 module.exports = {
   redis: redis,
-  getAsync: getAsync
+  getAsync: async function(key) {
+    return await getAsync(key);
+  }
 };
