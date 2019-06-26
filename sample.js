@@ -1,9 +1,10 @@
 require('dotenv').config();
 
+const uuidv4 = require('uuid/v4');
+
 const dds = require('./modules/dds');
 const { redis, getAsync } = require('./modules/redis');
 const tts = require('./modules/tts');
-const uuidv4 = require('uuid/v4');
 
 async function getText(userId, username, inputText) {
   const key = `d_s_${userId}`;
@@ -29,11 +30,15 @@ async function getText(userId, username, inputText) {
 
 getText(1, 'A', '英語わかる')
   .then(text => {
-    return {
-      text: text,
-      outputFile: tts(text, `./mp3/${uuidv4()}.mp3`).catch(e => console.log(e))
-    };
+    return tts(text, `./mp3/${uuidv4()}.mp3`)
+      .then(outputFile => {
+        return {
+          text: text,
+          outputFile: outputFile
+        };
+      })
+      .catch(e => console.log(e));
   })
   .then(a => console.log(a))
-  .catch(text => console.log(text));
+  .catch(e => console.log(e));
 
