@@ -1,7 +1,7 @@
 require('dotenv').config();
 const fs = require('fs');
 const Discord = require('discord.js');
-const { prefix, token } = require('./config.json');
+const prefix = '/';
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -18,17 +18,35 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
-  console.log(message.content);
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
   const args = message.content.slice(prefix.length).split(/ +/);
   const commandName = args.shift().toLowerCase();
 
-  if (commandName === 'join') {
-    join(message).then(connection => {
-      playMp3(connection, '/root/bot/hubot-buta/mp3/output.mp3');
+  if (commandName === 'hello') {
+    message.member.voiceChannel.join().then(connection => {
+      const sounds = [
+        '/mp3/famima.mp3',
+        '/mp3/nico-nico-ni.mp3',
+        '/mp3/tuturu.mp3',
+      ];
+      const filename = sounds[Math.floor(Math.random() * sounds.length)];
+      let path = require('path').join(__dirname, filename);
+      console.log(path);
+      const dispatcher = connection.playFile(path);
+      dispatcher.on('error', console.error);
+      dispatcher.setVolume(1);
+      dispatcher.on('end', reason => {
+        console.log('end');
+        connection.disconnect();
+      });
     }).catch(e => console.error(e));
   }
+  if (commandName === 'bye') {
+    let conn = client.internal.voiceConnection;
+    if (conn) conn.disconnect();
+  }
+
   //if (!client.commands.has(commandName)) return;
   //try {
   //  client.commands.get(commandName).execute(message, args);
@@ -58,4 +76,4 @@ async function playMp3(connection, mp3File) {
   dispatcher.destroy();
 }
 
-client.login(token).catch(e => console.error(e));
+client.login(process.env.DISCORD_CLIENT_TOKEN).catch(e => console.error(e));
