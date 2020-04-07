@@ -23,9 +23,11 @@
     "hubot-scripts": "^2.17.2",
     "hubot-shipit": "^0.2.0",
     "request": "^2.83.0",
-    "tcp-ping": "0.1.1"
+    "tcp-ping": "0.1.1",
+    "dotenv": "^8.2.0"
   },
   "engines": {
     "node": "9.2.0"
-  }
+  },
+  "devDependencies": {}
 }

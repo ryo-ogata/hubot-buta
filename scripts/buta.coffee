@@ -10,17 +10,14 @@ module.exports = (robot) ->
 
   # docomo
   EXPIRE_SEC=180
-  DDS_API_KEY = process.env.DDS_API_KEY
-  DDS_REGISTRATION_URL = process.env.DDS_REGISTRATION_URL
-  DDS_DIALOGUE_URL = process.env.DDS_DIALOGUE_URL
-  REDIS_URL = process.env.REDISTOGO_URL
 
   request = require 'request'
   redis = require('redis')
   url = require("url")
+  require('dotenv').config();
 
   # https://github.com/NodeRedis/node_redis
-  rtg   = url.parse(REDIS_URL)
+  rtg   = url.parse(process.env.REDISTOGO_URL)
   client = redis.createClient(rtg.port, rtg.hostname)
   if rtg.auth?.split(":")?.length > 1
     client.auth(rtg.auth.split(":")[1]);
@@ -34,82 +31,43 @@ module.exports = (robot) ->
 
   robot.hear /(.*)/, (msg) ->
     text = msg.match[1]
+    isFirst = false
     if (match_buta = /(ぶた|ブタ|豚|でぶ|デブ|buta)/.exec(text))
       text_buta = match_buta[0]
       msg.send "今#{text_buta}って言ったかこの野郎"
+      isFirst = true
+    key = make_dialog_session_key msg
     new Promise((resolve, reject) =>
-      key = make_dialog_session_key msg
       log_ "key=#{key}"
       client.get key, (err, reply) ->
         log_ "11 err=#{err}, reply=#{reply}"
-        if err or !reply
-          # 会話開始していなければ何もしない
-          unless text_buta
-            return
-          # registration API
-          data = JSON.stringify(
-            botId: 'Chatting'
-            appKind: 'buta'
-          )
-          log_ "11 DDS_REGISTRATION_URL=#{DDS_REGISTRATION_URL}"
-          robot.http(DDS_REGISTRATION_URL)
-            .header('Content-Type', 'application/json')
-            .post(data) (err, response, body) ->
-              log_ "12 err=#{err}, body=#{body}"
-              if err
-                reject(err)
+        if isFirst or reply
+          data =
+            apikey: process.env.SMALLTALK_API_KEY
+            query: text
+          dataString = [
+            "apikey=#{process.env.SMALLTALK_API_KEY}"
+            "query=#{text}"
+          ].join('&')
+          log_ "21 url=#{process.env.SMALLTALK_API_URL}, data=#{JSON.stringify(data)}"
+          robot.http(process.env.SMALLTALK_API_URL)
+            .header('Content-Type', 'application/x-www-form-urlencoded')
+            .post(dataString) (err, response, body) ->
+              log_ "22 err=#{err}, response=#{response}, body=#{body}"
+              json = JSON.parse body
+              if json?.status == 0
+                resolve(json.results[0].reply)
               else
-                json = JSON.parse body
-                client.set key, json.appId, 'EX', EXPIRE_SEC
-                resolve(json.appId)
-        else
-          resolve(reply)
+                reject(json.message)
     )
-    .then((appId) =>
-      send_dialog msg, appId
-      client.set key, appId, 'EX', EXPIRE_SEC
+    .then((reply) =>
+      msg.send reply
+      client.set key, reply, 'EX', EXPIRE_SEC
     )
     .catch((err) => { })
 
   make_dialog_session_key = (msg) ->
     "d_s_#{msg.envelope.user.id}"
-
-  send_dialog = (msg, appId) ->
-    log_ "31 appId=#{appId}}"
-    text = msg.message.text
-    data = JSON.stringify(
-      language: 'ja-JP'
-      botId: 'Chatting'
-      appId: appId
-      voiceText: text
-      clientData:
-        option:
-          nickname: msg.envelope.user.name
-          nicknameY: msg.envelope.user.name
-          mode: 'dialog'
-          t: random_t()
-    )
-    log_ "32 data=#{data}"
-    robot.http(DDS_DIALOGUE_URL)
-      .header('Content-Type', 'application/json')
-      .post(data) (err, response, body) ->
-        log_ "33 body=#{body}"
-        if err
-          reject(err)
-        else
-          json = JSON.parse body
-          if json?.systemText?.expression?
-            msg.send json.systemText.expression
-
-  random_t = () ->
-    # 1-100
-    r = (Math.floor(Math.random() * 100) + 1) % 3
-    if r == 0
-      'kansai'
-    else if r == 1
-      'akachan'
-    else
-      ''
 
   log_ = (obj) ->
     robot.logger.error obj
